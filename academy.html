@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Академия морфологии</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1c1030;
+    --bg-panel: #271541;
+    --bg-panel-2: #2f1a4d;
+    --gold: #d7ae62;
+    --gold-soft: #e8cf9c;
+    --ink: #f3ead8;
+    --ink-dim: #c9bcdb;
+    --earth: #7a9a63;
+    --earth-bg: #24301f;
+    --fire: #e0904a;
+    --fire-bg: #382012;
+    --water: #4f96ab;
+    --water-bg: #142a30;
+    --air: #a595d6;
+    --air-bg: #251c3d;
+    --line: rgba(215, 174, 98, 0.25);
+    --radius: 18px;
+  }
+  :root:not([data-theme="light"]) { color-scheme: dark; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { color-scheme: dark; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    background: radial-gradient(ellipse at 20% -10%, #3a2158 0%, var(--bg) 55%), var(--bg);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1.5px 1.5px at 80% 15%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,.25), transparent),
+      radial-gradient(1.5px 1.5px at 30% 85%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.2), transparent),
+      radial-gradient(1.5px 1.5px at 45% 40%, rgba(255,255,255,.25), transparent);
+    background-size: 100% 100%;
+    z-index: 0;
+  }
+
+  header.chrome {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(16px, 4vw, 40px) 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    letter-spacing: .04em;
+    color: var(--gold-soft);
+  }
+  .progress-dots {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    max-width: 50vw;
+    justify-content: flex-end;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(215,174,98,.3);
+    transition: background .25s, transform .25s;
+  }
+  .dot.active { background: var(--gold); transform: scale(1.3); }
+
+  main {
+    flex: 1;
+    position: relative;
+    display: flex;
+    z-index: 1;
+    margin-top: calc(49px + env(safe-area-inset-top, 0px));
+    margin-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+  }
+
+  .slide {
+    display: flex;
+    width: 100%;
+    padding: clamp(20px, 5vw, 56px) clamp(18px, 6vw, 90px);
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .slide-inner { max-width: 880px; width: 100%; margin: auto 0; }
+
+  .eyebrow-icon { font-size: 40px; line-height: 1; margin-bottom: 14px; display: block; }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    color: var(--gold-soft);
+  }
+  .slide--title h1 { font-size: clamp(32px, 6vw, 56px); }
+  .slide--content h1 { font-size: clamp(24px, 4vw, 34px); }
+
+  p.lede {
+    font-size: clamp(16px, 2.4vw, 19px);
+    line-height: 1.6;
+    color: var(--ink-dim);
+    max-width: 60ch;
+  }
+  .slide--title p.lede { margin: 0 auto 34px; }
+
+  .meta-line {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: rgba(201,188,219,.6);
+    margin-top: 40px;
+    letter-spacing: .02em;
+  }
+
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+    border: none;
+    padding: 13px 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(215,174,98,.25);
+    transition: transform .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn--ghost {
+    background: transparent;
+    color: var(--gold-soft);
+    border: 1.5px solid var(--line);
+    box-shadow: none;
+  }
+
+  /* concept slide */
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 28px;
+  }
+  @media (max-width: 620px) { .pair { grid-template-columns: 1fr; } }
+  .pair-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .pair-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    margin: 0 0 8px;
+    color: var(--gold-soft);
+  }
+  .pair-card p { margin: 0; color: var(--ink-dim); font-size: 14.5px; line-height: 1.55; }
+  .example-box {
+    margin-top: 22px;
+    background: var(--bg-panel-2);
+    border-left: 3px solid var(--gold);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14.5px;
+    color: var(--ink-dim);
+  }
+  .example-box b { color: var(--ink); }
+
+  /* elements grid */
+  .elements-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 26px;
+  }
+  @media (max-width: 620px) { .elements-grid { grid-template-columns: 1fr; } }
+  .element-card {
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+  }
+  .element-card .icon { font-size: 26px; }
+  .element-card .name {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    margin: 8px 0 2px;
+  }
+  .element-card .sub { font-size: 12.5px; opacity: .75; margin-bottom: 8px; }
+  .element-card .desc { font-size: 13.5px; line-height: 1.5; color: var(--ink-dim); margin-bottom: 10px; }
+  .element-card .traits { font-size: 12.5px; line-height: 1.6; }
+  .element-card .traits div { margin-bottom: 2px; }
+  .element-card .traits b { font-weight: 700; }
+
+  .el-earth { background: var(--earth-bg); }
+  .el-earth .name { color: var(--earth); }
+  .el-fire { background: var(--fire-bg); }
+  .el-fire .name { color: var(--fire); }
+  .el-water { background: var(--water-bg); }
+  .el-water .name { color: var(--water); }
+  .el-air { background: var(--air-bg); }
+  .el-air .name { color: var(--air); }
+
+  /* practice slide */
+  .sentence {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(20px, 3.6vw, 28px);
+    line-height: 1.7;
+    margin: 26px 0 10px;
+  }
+  .word-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px dashed rgba(215,174,98,.45);
+    color: var(--ink);
+    font-family: 'Cinzel', serif;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 0 3px;
+    transition: color .15s, border-color .15s;
+  }
+  .word-btn:hover { color: var(--gold-soft); }
+  .word-btn.done { border-bottom-style: solid; }
+  .word-btn.done.w-air { color: var(--air); border-color: var(--air); }
+  .word-btn.done.w-fire { color: var(--fire); border-color: var(--fire); }
+  .word-btn.done.w-earth { color: var(--earth); border-color: var(--earth); }
+  .word-btn.done.w-water { color: var(--water); border-color: var(--water); }
+  .word-btn.done.w-tome { color: var(--gold-soft); border-color: var(--gold); }
+
+  .hint { font-size: 13.5px; color: var(--ink-dim); margin-bottom: 6px; }
+
+  .answer-panel {
+    margin-top: 20px;
+    display: none;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    animation: reveal .3s ease;
+  }
+  .answer-panel.show { display: block; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .answer-panel .tag {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: .03em;
+    margin-bottom: 8px;
+  }
+  .answer-panel .line { font-size: 14.5px; line-height: 1.7; }
+  .answer-panel .line b { font-weight: 800; }
+
+  .ap-air { background: var(--air-bg); }
+  .ap-air .tag { color: var(--air); }
+  .ap-fire { background: var(--fire-bg); }
+  .ap-fire .tag { color: var(--fire); }
+  .ap-earth { background: var(--earth-bg); }
+  .ap-earth .tag { color: var(--earth); }
+  .ap-water { background: var(--water-bg); }
+  .ap-water .tag { color: var(--water); }
+  .ap-tome { background: var(--bg-panel); }
+  .ap-tome .tag { color: var(--gold-soft); }
+
+  .collected {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    font-size: 22px;
+  }
+  .collected span { opacity: .25; transition: opacity .3s, transform .3s; }
+  .collected span.got { opacity: 1; transform: scale(1.15); }
+
+  /* recap */
+  .secret-box {
+    margin-top: 26px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+  }
+  .secret-box p { margin: 0; font-size: 15.5px; line-height: 1.7; color: var(--ink); }
+  .secret-box p + p { margin-top: 10px; color: var(--ink-dim); font-size: 14.5px; }
+
+  /* mini onboarding tip — pops up once, explains what the book is for */
+  .mini-tip {
+    position: fixed;
+    left: 16px;
+    bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+    z-index: 15;
+    width: min(78vw, 280px);
+    background: var(--bg-panel);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 16px 34px 16px 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    opacity: 0;
+    transform: translateY(14px) scale(.97);
+    pointer-events: none;
+    transition: opacity .4s ease, transform .4s cubic-bezier(.34,1.3,.4,1);
+  }
+  .mini-tip.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .mini-tip-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13.5px;
+    color: var(--gold-soft);
+    margin-bottom: 6px;
+  }
+  .mini-tip-text { font-size: 12.5px; line-height: 1.55; color: var(--ink-dim); }
+  .mini-tip-close {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 3px;
+  }
+  .mini-tip-close:hover { color: var(--gold-soft); }
+
+  footer.nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px clamp(16px, 4vw, 40px) calc(16px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  .nav-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    background: var(--bg-panel);
+    color: var(--gold-soft);
+    border: 1px solid var(--line);
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .nav-btn:disabled { opacity: .3; cursor: default; }
+  .nav-count { font-size: 13px; color: var(--ink-dim); }
+
+  .role-mark { padding-bottom: 1px; }
+  .role-subject { text-decoration: underline; text-decoration-style: solid; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .role-predicate { text-decoration: underline; text-decoration-style: double; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .role-attribute { text-decoration: underline; text-decoration-style: wavy; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  .role-object { text-decoration: underline; text-decoration-style: dashed; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  .role-adverbial { text-decoration: underline; text-decoration-style: dashed; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+
+  /* roman-numeral blocks on slide 4 */
+  .roman-block { margin-top: 10px; }
+  .roman-label {
+    font-family: 'Cinzel', serif;
+    font-size: 12.5px;
+    letter-spacing: .02em;
+    opacity: .4;
+    margin-bottom: 4px;
+  }
+  .roman-block .line { margin: 0 0 3px; }
+  .gloss { opacity: .45; font-size: .9em; font-style: italic; }
+
+  .step-i-box {
+    margin-top: 18px;
+    background: var(--bg-panel);
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+  }
+  .step-i-box b { color: var(--gold-soft); }
+
+  /* twinkling stars */
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    animation: twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .15; transform: scale(1); }
+    50% { opacity: .9; transform: scale(1.5); }
+  }
+
+  /* page-turn transition — page flips over its spine like a real book leaf */
+  main { perspective: 2200px; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; z-index: 3; }
+
+  .slide.flip-out-fwd {
+    z-index: 5;
+    transform-origin: left center;
+    animation: flipOutFwd .62s cubic-bezier(.55,.05,.35,1) forwards;
+  }
+  .slide.flip-out-back {
+    z-index: 5;
+    transform-origin: right center;
+    animation: flipOutBack .62s cubic-bezier(.55,.05,.35,1) forwards;
+  }
+  .slide.flip-in {
+    z-index: 2;
+    animation: flipIn .55s ease-out forwards;
+  }
+  @keyframes flipOutFwd {
+    0%   { transform: rotateY(0deg);    opacity: 1; }
+    55%  { transform: rotateY(-95deg);  opacity: 1; }
+    100% { transform: rotateY(-165deg); opacity: 0; }
+  }
+  @keyframes flipOutBack {
+    0%   { transform: rotateY(0deg);   opacity: 1; }
+    55%  { transform: rotateY(95deg);  opacity: 1; }
+    100% { transform: rotateY(165deg); opacity: 0; }
+  }
+  @keyframes flipIn {
+    0%   { opacity: 0; transform: scale(.97) translateY(6px); filter: brightness(.6); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+  }
+  .slide.flip-out-fwd::after, .slide.flip-out-back::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(0,0,0,.5), transparent 45%, transparent 55%, rgba(0,0,0,.5));
+    animation: foldShade .62s ease forwards;
+  }
+  @keyframes foldShade {
+    0% { opacity: 0; }
+    50% { opacity: .8; }
+    100% { opacity: 0; }
+  }
+
+  /* shimmering headline ink */
+  h1 {
+    background: linear-gradient(100deg, var(--gold-soft) 30%, #fff8e6 45%, var(--gold-soft) 60%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: inkShimmer 6s ease-in-out infinite;
+  }
+  @keyframes inkShimmer {
+    0%   { background-position: 100% 0; }
+    50%  { background-position: 0 0; }
+    100% { background-position: 100% 0; }
+  }
+
+  /* drifting gold sparkles — chaotic float, not just straight up */
+  .sparkle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff3d0 0%, var(--gold) 55%, transparent 75%);
+    pointer-events: none;
+    animation: sparkleDrift ease-in-out infinite;
+  }
+  @keyframes sparkleDrift {
+    0%   { transform: translate(0,0) scale(.4) rotate(0deg); opacity: 0; }
+    15%  { opacity: .9; }
+    35%  { transform: translate(var(--dx1), var(--dy1)) scale(1) rotate(60deg); }
+    60%  { transform: translate(var(--dx2), var(--dy2)) scale(.85) rotate(140deg); opacity: .8; }
+    85%  { transform: translate(var(--dx3), var(--dy3)) scale(.6) rotate(220deg); opacity: .5; }
+    100% { transform: translate(var(--dx4), var(--dy4)) scale(.2) rotate(300deg); opacity: 0; }
+  }
+
+  /* floating grammar glyphs — letters, part-of-speech names, sentence-member words drifting with the sparkles */
+  .glyph {
+    position: absolute;
+    font-family: 'Cinzel', serif;
+    color: var(--gold-soft);
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: var(--gop, .2);
+    animation: glyphDrift ease-in-out infinite;
+  }
+  @keyframes glyphDrift {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    50%  { transform: translate(var(--dxm), var(--dym)) rotate(var(--rm, 5deg)); }
+    100% { transform: translate(0,0) rotate(0deg); }
+  }
+
+  /* click-burst spark */
+  .burst-spark {
+    position: fixed;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8e0, var(--gold));
+    pointer-events: none;
+    z-index: 50;
+    animation: burstFly ease-out forwards;
+  }
+  @keyframes burstFly {
+    0%   { transform: translate(0,0) scale(1); opacity: 1; }
+    70%  { opacity: 1; }
+    100% { transform: translate(var(--bx), var(--by)) scale(.15); opacity: 0; }
+  }
+
+  /* quiet interlude slide */
+  .quiet-text {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    color: var(--gold-soft);
+    margin: 0 0 10px;
+    letter-spacing: .02em;
+  }
+
+  /* extra parts-of-speech "tomes" */
+  .el-tome { background: var(--bg-panel); }
+  .el-tome .name { color: var(--gold-soft); }
+  .el-tome .traits > div:only-child { color: var(--ink-dim); }
+
+  /* practice deck */
+  .deck-wrap {
+    position: relative;
+    height: 190px;
+    margin: 30px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stack-card {
+    position: absolute;
+    width: 122px;
+    height: 164px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: linear-gradient(160deg, var(--bg-panel-2), var(--bg-panel));
+    box-shadow: 0 10px 24px rgba(0,0,0,.4);
+  }
+  .stack-card.c1 { transform: rotate(-9deg) translateX(-14px); z-index: 1; }
+  .stack-card.c2 { transform: rotate(6deg) translateX(10px); z-index: 2; }
+  .stack-card.c3 {
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    cursor: pointer;
+    border: 1px solid var(--gold);
+    transition: transform .15s ease;
+  }
+  .stack-card.c3:hover { transform: translateY(-4px); }
+  .stack-card.c3:active { transform: translateY(-1px) scale(.98); }
+  .deck-hint-label {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 8px;
+  }
+  .dc-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
+
+  /* card-draw overlay: card pops to the foreground, everything else blurs */
+  .card-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(12, 6, 22, .6);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .card-overlay.show { opacity: 1; pointer-events: auto; }
+  .drawn-card-modal {
+    position: relative;
+    width: min(92vw, 480px);
+    max-height: 84vh;
+    overflow-y: auto;
+    background: linear-gradient(165deg, var(--bg-panel-2), var(--bg-panel));
+    border: 1.5px solid var(--gold);
+    border-radius: 22px;
+    padding: 34px 26px 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 46px rgba(215,174,98,.18);
+    transform: scale(.8) translateY(14px);
+    opacity: 0;
+    transition: transform .4s cubic-bezier(.34,1.45,.4,1), opacity .3s ease;
+  }
+  .card-overlay.show .drawn-card-modal { transform: scale(1) translateY(0); opacity: 1; }
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 17px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+  }
+  .modal-close:hover { color: var(--gold-soft); }
+  .dc-prompt {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(19px, 4vw, 23px);
+    color: var(--gold-soft);
+    text-align: center;
+    margin: 4px 0 18px;
+    line-height: 1.4;
+  }
+  .dc-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+  }
+  .dc-sentence {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(17px, 3.4vw, 20px);
+    line-height: 1.65;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .dc-target { color: var(--gold); font-weight: 700; }
+  .dc-hint { font-size: 13.5px; color: var(--ink-dim); margin-bottom: 6px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<div class="mini-tip" id="miniTip">
+  <button class="mini-tip-close" onclick="closeMiniTip()" aria-label="Закрыть">✕</button>
+  <div class="mini-tip-title">📖 О чём эта книга</div>
+  <div class="mini-tip-text">Тренажёр морфологического разбора: слова в предложениях можно «оживлять» и разбирать прямо здесь. Материал запоминается через действие, а не через зубрёжку правил.</div>
+</div>
+
+<header class="chrome">
+  <span class="brand">✨ Академия морфологии</span>
+  <div class="progress-dots" id="dots"></div>
+</header>
+
+<main>
+
+  <section class="slide slide--title active" data-slide>
+    <div class="slide-inner" style="text-align:center;">
+      <span class="eyebrow-icon">🪄</span>
+      <h1>Академия морфологии</h1>
+      <p class="lede" style="margin-left:auto;margin-right:auto;">Разбираем слова как заклинания — у каждого своя стихия и свой секрет, который не меняется, где бы слово ни стояло.</p>
+      <button class="btn" onclick="openBook(this)">Открыть книгу заклинаний →</button>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Что такое морфологический разбор?</h1>
+      <p class="lede">Это как произнести заклинание правильно: у слова есть постоянные признаки — то, что не меняется никогда, — и непостоянные — то, что слово принимает именно сейчас.</p>
+      <div class="pair">
+        <div class="pair-card">
+          <h3>Постоянные признаки (сердце заклинания)</h3>
+          <p>Свойства слова, которые остаются одинаковыми, в какое бы предложение его ни поставить.</p>
+        </div>
+        <div class="pair-card">
+          <h3>Непостоянные признаки (форма заклинания)</h3>
+          <p>То, как слово выглядит именно в этом предложении — меняется от контекста.</p>
+        </div>
+      </div>
+      <div class="example-box">
+        <b>Проверка:</b> возьми слово «звезда» и поставь его в другое предложение — «не было звезды». Род (женский) остался таким же — это постоянный признак. А падеж изменился с именительного на родительный — это непостоянный признак.
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Четыре стихии частей речи</h1>
+      <p class="lede">Каждая часть речи — своя стихия, со своим набором признаков.</p>
+      <div class="elements-grid">
+        <div class="element-card el-earth">
+          <div class="icon">🌍</div>
+          <div class="name">Земля</div>
+          <div class="sub">Существительное</div>
+          <div class="desc">Называет то, что можно потрогать, увидеть или как-то назвать.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> собств./нариц., одуш./неодуш., род, склонение</div>
+            <div><b>Непостоянные (форма заклинания):</b> падеж, число</div>
+          </div>
+        </div>
+        <div class="element-card el-fire">
+          <div class="icon">🔥</div>
+          <div class="name">Огонь</div>
+          <div class="sub">Прилагательное</div>
+          <div class="desc">Даёт предмету окраску, свойство, характер.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> разряд (качеств./относит./притяж.)</div>
+            <div><b>Непостоянные (форма заклинания):</b> род, число, падеж</div>
+          </div>
+        </div>
+        <div class="element-card el-water">
+          <div class="icon">🌊</div>
+          <div class="name">Вода</div>
+          <div class="sub">Глагол</div>
+          <div class="desc">Приводит всё в движение, показывает действие.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> вид, спряжение, возвратность</div>
+            <div><b>Непостоянные (форма заклинания):</b> наклонение, время, число, лицо/род</div>
+          </div>
+        </div>
+        <div class="element-card el-air">
+          <div class="icon">💨</div>
+          <div class="name">Воздух</div>
+          <div class="sub">Местоимение</div>
+          <div class="desc">Невидимка — не называет предмет, а лишь указывает на него.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> разряд, лицо (у личных)</div>
+            <div><b>Непостоянные (форма заклинания):</b> число, падеж — если вообще меняется</div>
+          </div>
+        </div>
+      </div>
+      <div class="meta-line">Есть и другие части речи — о них поговорим в другой раз.</div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Призови стихию каждого слова</h1>
+      <p class="hint">Нажми на слово в предложении — появится нужная стихия и полный разбор.</p>
+      <div class="step-i-box">
+        <b>Не забудь пункт I:</b> прежде чем открывать разбор — задай вопрос к слову, определи часть речи и поставь слово в начальную форму (где она есть: у существительных, прилагательных и глаголов начальная форма есть всегда; у некоторых местоимений, как «её», отдельной начальной формы нет — слово не изменяется).
+      </div>
+      <div class="step-i-box">
+        <b>Белое и серое:</b> обычным цветом написано то, что нужно писать в разборе. Серым, приглушённым — подсказки и волшебные термины (вроде «сердце заклинания»), они только для понимания, в тетради их писать не надо.
+      </div>
+      <div class="sentence">
+        <button class="word-btn w-air" data-el="air" onclick="reveal(this,'air')">Её</button>
+        <button class="word-btn w-fire" data-el="fire" onclick="reveal(this,'fire')">маленький</button>
+        <button class="word-btn w-earth" data-el="earth" onclick="reveal(this,'earth')">котёнок</button>
+        весело
+        <button class="word-btn w-water" data-el="water" onclick="reveal(this,'water')">играл</button>
+        с шариком.
+      </div>
+
+      <div class="answer-panel ap-air" id="panel-air">
+        <div class="tag">💨 Воздух — местоимение «её»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Морфологические признаки</div>
+          <div class="line">Постоянные <span class="gloss">(сердце заклинания)</span>: притяжательное <span class="gloss">(указывает на принадлежность — чей?)</span></div>
+          <div class="line">Непостоянные <span class="gloss">(форма заклинания)</span>: неизменяемое <span class="gloss">(своей формы числа и падежа нет)</span></div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-attribute">определение</span></div>
+        </div>
+      </div>
+      <div class="answer-panel ap-fire" id="panel-fire">
+        <div class="tag">🔥 Огонь — прилагательное «маленький»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Морфологические признаки</div>
+          <div class="line">Постоянные <span class="gloss">(сердце заклинания)</span>: качественное <span class="gloss">(можно сказать «очень маленький»)</span></div>
+          <div class="line">Непостоянные <span class="gloss">(форма заклинания)</span>: м.р., ед.ч., им.п.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-attribute">определение</span></div>
+        </div>
+      </div>
+      <div class="answer-panel ap-earth" id="panel-earth">
+        <div class="tag">🌍 Земля — существительное «котёнок»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Морфологические признаки</div>
+          <div class="line">Постоянные <span class="gloss">(сердце заклинания)</span>: нариц., одуш., м.р., 2 склонение</div>
+          <div class="line">Непостоянные <span class="gloss">(форма заклинания)</span>: ед.ч., им.п.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-subject">подлежащее</span></div>
+        </div>
+      </div>
+      <div class="answer-panel ap-water" id="panel-water">
+        <div class="tag">🌊 Вода — глагол «играл»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Морфологические признаки</div>
+          <div class="line">Постоянные <span class="gloss">(сердце заклинания)</span>: несов. вид, I спряжение, невозвратный</div>
+          <div class="line">Непостоянные <span class="gloss">(форма заклинания)</span>: изъявит. накл., прош. время, ед.ч., м.р.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-predicate">сказуемое</span></div>
+        </div>
+      </div>
+
+      <div class="collected" id="collected">
+        <span data-c="air">💨</span>
+        <span data-c="fire">🔥</span>
+        <span data-c="earth">🌍</span>
+        <span data-c="water">🌊</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner" style="text-align:center;">
+      <span class="eyebrow-icon">📜</span>
+      <h1>Главный секрет академии</h1>
+      <div class="secret-box" style="text-align:left;">
+        <p>Поставь слово в другое предложение. То, что осталось таким же — сердце, постоянный признак. То, что изменилось — форма, непостоянный признак.</p>
+        <p>Не нужно заучивать список — просто проверяй на конкретном слове каждый раз.</p>
+      </div>
+      <div class="meta-line">Академия морфологии закрыта ✨</div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner" style="text-align:center;">
+      <span class="eyebrow-icon">🌙</span>
+      <p class="quiet-text">Тихо-тихо…</p>
+      <p class="lede" style="margin:0 auto;">Сейчас — время отдохнуть.</p>
+      <div class="meta-line">Остальные тома книги заклинаний откроются на следующем уроке.</div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Другие тома книги заклинаний</h1>
+      <p class="lede">Эти части речи встретятся на следующих уроках — сегодня просто знакомство.</p>
+      <div class="elements-grid">
+        <div class="element-card el-tome">
+          <div class="icon">🕊️</div>
+          <div class="name">Наречие</div>
+          <div class="sub">&nbsp;</div>
+          <div class="desc">Показывает, как, где, когда или почему что-то происходит.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> разряд по значению (образа действия, места, времени и т.д.)</div>
+            <div><b>Непостоянные (форма заклинания):</b> обычно нет — слово не изменяется</div>
+          </div>
+        </div>
+        <div class="element-card el-tome">
+          <div class="icon">🔢</div>
+          <div class="name">Числительное</div>
+          <div class="sub">&nbsp;</div>
+          <div class="desc">Называет число или счёт по порядку.</div>
+          <div class="traits">
+            <div><b>Постоянные (сердце):</b> разряд (количественное/порядковое), простое или составное</div>
+            <div><b>Непостоянные (форма заклинания):</b> падеж; у порядковых — ещё род и число</div>
+          </div>
+        </div>
+        <div class="element-card el-tome" style="grid-column: 1 / -1;">
+          <div class="icon">🕯️</div>
+          <div class="name">Служебные части речи</div>
+          <div class="sub">предлог · союз · частица · междометие</div>
+          <div class="desc">Духи-помощники — сами не называют предмет, признак или действие, а помогают словам и предложениям держаться вместе.</div>
+          <div class="traits">
+            <div>У них нет постоянных и непостоянных признаков в привычном смысле — обычно достаточно назвать часть речи и объяснить, для чего она здесь нужна.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Колода практики</h1>
+      <p class="lede">Тяни карточку — она окажется на переднем плане, а всё вокруг размоется. На ней слово из случайного предложения, которое нужно разобрать. Хорошо подходит для самопроверки домашнего задания.</p>
+
+      <div class="deck-wrap">
+        <div class="stack-card c1"></div>
+        <div class="stack-card c2"></div>
+        <div class="stack-card c3" onclick="drawCard(this)">🪄</div>
+      </div>
+      <div class="deck-hint-label">Нажми на карточку, чтобы вытянуть слово</div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner" style="text-align:center;">
+      <span class="eyebrow-icon">🌙</span>
+      <p class="quiet-text">Тихо-тихо…</p>
+      <p class="lede" style="margin:0 auto;">Сейчас — время отдохнуть.</p>
+      <div class="meta-line">Остальные тома книги заклинаний откроются на следующем уроке.</div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Активируй скрытые заклинания</h1>
+      <p class="lede">Стихии ты уже приручила. Теперь — более тихие, но не менее важные заклинания: наречия, числительные и служебные слова, которые держат предложение вместе.</p>
+      <div class="step-i-box">
+        <b>Как разбирать служебные слова:</b> у предлога, союза и частицы нет постоянных и непостоянных признаков. В разборе достаточно назвать часть речи, коротко сказать, что она делает в предложении, и отметить: слово не изменяется и не является членом предложения.
+      </div>
+      <div class="sentence">
+        <button class="word-btn w-tome" data-el="chastitsa" onclick="reveal(this,'chastitsa')">Даже</button>
+        <button class="word-btn w-tome" data-el="chislit" onclick="reveal(this,'chislit')">пять</button>
+        учеников
+        <button class="word-btn w-tome" data-el="narech" onclick="reveal(this,'narech')">быстро</button>
+        вошли
+        <button class="word-btn w-tome" data-el="predlog" onclick="reveal(this,'predlog')">в</button>
+        класс,
+        <button class="word-btn w-tome" data-el="soyuz" onclick="reveal(this,'soyuz')">а</button>
+        учителя ещё не было.
+      </div>
+      <p class="hint" style="margin-top:6px;">Кликабельны только новые заклинания — наречие, числительное и служебные слова. Остальное вы уже приручили.</p>
+
+      <div class="answer-panel ap-tome" id="panel-chastitsa">
+        <div class="tag">🕯️ Частица «даже»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Признаки</div>
+          <div class="line gloss">У служебных частей речи нет привычных постоянных/непостоянных признаков.</div>
+          <div class="line">Усилительная частица, подчёркивает неожиданность. Не изменяется.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line">Не является членом предложения.</div>
+        </div>
+      </div>
+      <div class="answer-panel ap-tome" id="panel-chislit">
+        <div class="tag">🔢 Числительное «пять»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Морфологические признаки</div>
+          <div class="line">Постоянные <span class="gloss">(сердце заклинания)</span>: количественное, простое</div>
+          <div class="line">Непостоянные <span class="gloss">(форма заклинания)</span>: им.п. — согласуется со словом «учеников»</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-subject">подлежащее</span> (вместе со словом «учеников»)</div>
+        </div>
+      </div>
+      <div class="answer-panel ap-tome" id="panel-narech">
+        <div class="tag">🕊️ Наречие «быстро»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Признаки</div>
+          <div class="line">Образа действия. Неизменяемое слово — форма всегда одна.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line"><span class="role-mark role-adverbial">обстоятельство</span></div>
+        </div>
+      </div>
+      <div class="answer-panel ap-tome" id="panel-predlog">
+        <div class="tag">🕯️ Предлог «в»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Признаки</div>
+          <div class="line gloss">У служебных частей речи нет привычных постоянных/непостоянных признаков.</div>
+          <div class="line">Простой предлог, связывает «вошли» и «класс». Не изменяется.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line">Не является членом предложения.</div>
+        </div>
+      </div>
+      <div class="answer-panel ap-tome" id="panel-soyuz">
+        <div class="tag">🕯️ Союз «а»</div>
+        <div class="roman-block">
+          <div class="roman-label">II. Признаки</div>
+          <div class="line gloss">У служебных частей речи нет привычных постоянных/непостоянных признаков.</div>
+          <div class="line">Сочинительный (противительный) союз, соединяет части сложного предложения. Не изменяется.</div>
+        </div>
+        <div class="roman-block">
+          <div class="roman-label">III. Синтаксическая роль</div>
+          <div class="line">Не является членом предложения.</div>
+        </div>
+      </div>
+
+      <div class="collected" id="collected">
+        <span data-c="chastitsa">🕯️</span>
+        <span data-c="chislit">🔢</span>
+        <span data-c="narech">🕊️</span>
+        <span data-c="predlog">🕯️</span>
+        <span data-c="soyuz">🕯️</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--content" data-slide>
+    <div class="slide-inner">
+      <h1>Колода скрытых заклинаний</h1>
+      <p class="lede">Та же колода, только теперь в ней — только новые заклинания: наречия, числительные и служебные слова.</p>
+
+      <div class="deck-wrap">
+        <div class="stack-card c1"></div>
+        <div class="stack-card c2"></div>
+        <div class="stack-card c3" onclick="drawCard(this,'hidden')">🪄</div>
+      </div>
+      <div class="deck-hint-label">Нажми на карточку, чтобы вытянуть слово</div>
+    </div>
+  </section>
+
+</main>
+
+<div class="card-overlay" id="cardOverlay" onclick="closeOverlayIfBackdrop(event)">
+  <div class="drawn-card-modal" id="drawnCardModal">
+    <button class="modal-close" onclick="closeCardOverlay()" aria-label="Закрыть">✕</button>
+    <div class="dc-head"><span id="dcIcon">🌍</span> <span id="dcLabel"></span></div>
+    <div class="dc-prompt">Разбери слово «<span id="dcPromptWord"></span>»</div>
+    <div class="dc-sentence" id="dcSentence"></div>
+    <div class="dc-hint" id="dcHint"></div>
+    <div class="dc-actions">
+      <button class="btn btn--ghost" onclick="drawCard()">Другая карточка →</button>
+    </div>
+  </div>
+</div>
+
+<footer class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="goTo(current-1)">← Назад</button>
+  <span class="nav-count" id="count">1 / …</span>
+  <button class="nav-btn" id="nextBtn" onclick="goTo(current+1)">Дальше →</button>
+</footer>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsWrap = document.getElementById('dots');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsWrap.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+
+  function goTo(i) {
+    if (i < 0 || i >= slides.length || i === current) return;
+    const dir = i > current ? 1 : -1;
+    const oldSlide = slides[current];
+    const newSlide = slides[i];
+
+    oldSlide.classList.remove('active');
+    newSlide.classList.remove('active');
+    newSlide.classList.add('flip-in');
+    newSlide.classList.add('active');
+    oldSlide.classList.add(dir > 0 ? 'flip-out-fwd' : 'flip-out-back');
+
+    dots[current].classList.remove('active');
+    current = i;
+    dots[current].classList.add('active');
+
+    document.getElementById('count').textContent = (current + 1) + ' / ' + slides.length;
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === slides.length - 1;
+
+    setTimeout(() => {
+      oldSlide.classList.remove('flip-out-fwd', 'flip-out-back');
+      newSlide.classList.remove('flip-in');
+    }, 650);
+  }
+  slides[0].classList.add('active');
+  document.getElementById('count').textContent = '1 / ' + slides.length;
+
+  function closeMiniTip() {
+    document.getElementById('miniTip').classList.remove('show');
+  }
+  setTimeout(() => {
+    const t = document.getElementById('miniTip');
+    if (t) {
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 9000);
+    }
+  }, 900);
+  document.getElementById('prevBtn').disabled = true;
+
+  function spawnBurst(x, y, opts) {
+    opts = opts || {};
+    const n = opts.n || 10;
+    const minDist = opts.minDist || 30;
+    const maxDist = opts.maxDist || 60;
+    const dur = opts.dur || 720;
+    for (let k = 0; k < n; k++) {
+      const s = document.createElement('span');
+      s.className = 'burst-spark';
+      const angle = (Math.PI * 2 * k) / n + Math.random() * 0.5;
+      const dist = minDist + Math.random() * (maxDist - minDist);
+      s.style.setProperty('--bx', (Math.cos(angle) * dist).toFixed(0) + 'px');
+      s.style.setProperty('--by', (Math.sin(angle) * dist).toFixed(0) + 'px');
+      const size = opts.big ? (3 + Math.random() * 4).toFixed(1) : '6';
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      s.style.animationDuration = dur + 'ms';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), dur + 40);
+    }
+  }
+
+  function spawnFirework(rect) {
+    // fires from all along the button's edges, in staggered waves, like a big sparkler salute
+    const edgePoints = [
+      { x: rect.left, y: rect.top }, { x: rect.right, y: rect.top },
+      { x: rect.left, y: rect.bottom }, { x: rect.right, y: rect.bottom },
+      { x: rect.left + rect.width / 2, y: rect.top }, { x: rect.left + rect.width / 2, y: rect.bottom },
+      { x: rect.left, y: rect.top + rect.height / 2 }, { x: rect.right, y: rect.top + rect.height / 2 },
+      { x: rect.left + rect.width * 0.25, y: rect.bottom }, { x: rect.left + rect.width * 0.75, y: rect.bottom },
+      { x: rect.left + rect.width * 0.25, y: rect.top }, { x: rect.left + rect.width * 0.75, y: rect.top }
+    ];
+    edgePoints.forEach((p, i) => {
+      setTimeout(() => {
+        spawnBurst(p.x, p.y, { n: 40, minDist: 70, maxDist: 190, dur: 1250, big: true });
+      }, i * 55);
+    });
+    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+    spawnBurst(cx, cy, { n: 58, minDist: 100, maxDist: 260, dur: 1500, big: true });
+    setTimeout(() => spawnBurst(cx, cy, { n: 50, minDist: 60, maxDist: 200, dur: 1300 }), 300);
+    setTimeout(() => spawnBurst(cx, cy, { n: 44, minDist: 90, maxDist: 240, dur: 1400, big: true }), 650);
+  }
+
+  function reveal(btn, el) {
+    document.getElementById('panel-' + el).classList.add('show');
+    btn.classList.add('done');
+    const c = document.querySelector('.collected span[data-c="' + el + '"]');
+    if (c) c.classList.add('got');
+    const r = btn.getBoundingClientRect();
+    spawnBurst(r.left + r.width / 2, r.top + r.height / 2);
+  }
+
+  function openBook(el) {
+    const r = el.getBoundingClientRect();
+    spawnFirework(r);
+    el.disabled = true;
+    setTimeout(() => { goTo(1); el.disabled = false; }, 2000);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  // practice deck
+  const DECK = [
+    { icon: '🌍', label: 'Существительное — стихия Земли', before: 'Утренний ', target: 'туман', after: ' окутал озеро.',
+      hint: 'Спроси: что? Это предмет или явление, которое можно назвать.',
+      post: 'нариц., неодуш., м.р., 2 склонение', nepost: 'ед.ч., им.п.', rol: 'подлежащее', rolClass: 'role-subject' },
+    { icon: '🔥', label: 'Прилагательное — стихия Огня', before: 'Мы шли по ', target: 'узкой', after: ' тропинке.',
+      hint: 'Спроси: какой? какая? Проверь — можно сказать «очень»?',
+      post: 'качественное', nepost: 'ж.р., ед.ч., дат.п.', rol: 'определение', rolClass: 'role-attribute' },
+    { icon: '🌊', label: 'Глагол — стихия Воды', before: 'Дети радостно ', target: 'смеялись', after: ' во дворе.',
+      hint: 'Спроси: что делали? Обрати внимание на -ся на конце.',
+      post: 'несов. вид, I спряжение, возвратный', nepost: 'изъявит. накл., прош. время, мн.ч.', rol: 'сказуемое', rolClass: 'role-predicate' },
+    { icon: '💨', label: 'Местоимение — стихия Воздуха', before: 'Мы встретили ', target: 'их', after: ' у входа.',
+      hint: 'Это слово не называет предмет само, а лишь указывает на него.',
+      post: 'личное, 3-е лицо', nepost: 'мн.ч., вин.п.', rol: 'дополнение', rolClass: 'role-object' },
+    { icon: '🌍', label: 'Существительное — стихия Земли', before: 'Дедушка подарил ', target: 'внуку', after: ' новую книгу.',
+      hint: 'Спроси: кому? Одушевлённый предмет.',
+      post: 'нариц., одуш., м.р., 2 склонение', nepost: 'ед.ч., дат.п.', rol: 'дополнение', rolClass: 'role-object' },
+    { icon: '🔥', label: 'Прилагательное — стихия Огня', before: '', target: 'Осенние', after: ' листья кружились в воздухе.',
+      hint: 'Проверь: можно сказать «очень осенние»? Если нет — разряд другой.',
+      post: 'относительное', nepost: 'мн.ч., им.п.', rol: 'определение', rolClass: 'role-attribute' },
+    { icon: '🌊', label: 'Глагол — стихия Воды', before: 'К вечеру дождь наконец ', target: 'прекратится', after: '.',
+      hint: 'Спроси: что сделает? Обрати внимание на время.',
+      post: 'сов. вид, I спряжение, невозвратный', nepost: 'изъявит. накл., буд. время, ед.ч., 3-е лицо', rol: 'сказуемое', rolClass: 'role-predicate' },
+    { icon: '💨', label: 'Местоимение — стихия Воздуха', before: 'Это платье выбрала ', target: 'я', after: '.',
+      hint: 'Кто говорит о себе? Начальная форма та же.',
+      post: 'личное, 1-е лицо', nepost: 'ед.ч., им.п.', rol: 'подлежащее', rolClass: 'role-subject' }
+  ];
+
+  const DECK2 = [
+    { icon: '🕊️', label: 'Наречие', before: 'Мальчик прыгнул ', target: 'высоко', after: '.',
+      hint: 'Спроси: как? Слово не изменяется.' },
+    { icon: '🕊️', label: 'Наречие', before: 'Мы приедем ', target: 'завтра', after: '.',
+      hint: 'Спроси: когда?' },
+    { icon: '🔢', label: 'Числительное', before: 'Она купила ', target: 'три', after: ' тетради.',
+      hint: 'Спроси: сколько? Это количественное числительное.' },
+    { icon: '🔢', label: 'Числительное', before: '', target: 'Второй', after: ' урок начнётся в девять.',
+      hint: 'Спроси: какой по счёту? Это порядковое числительное.' },
+    { icon: '🕯️', label: 'Предлог', before: 'Книга лежит ', target: 'на', after: ' столе.',
+      hint: 'Проверь: без этого слова падеж существительного изменится.' },
+    { icon: '🕯️', label: 'Предлог', before: 'Мы гуляли ', target: 'около', after: ' парка.',
+      hint: 'Простой это предлог или составной?' },
+    { icon: '🕯️', label: 'Союз', before: 'Он молчал, ', target: 'потому что', after: ' устал.',
+      hint: 'Сочинительный или подчинительный? Простой или составной?' },
+    { icon: '🕯️', label: 'Союз', before: 'Мы хотели пойти в кино, ', target: 'но', after: ' пошёл дождь.',
+      hint: 'Соединяет части сложного предложения — какой оттенок значения вносит?' },
+    { icon: '🕯️', label: 'Частица', before: '', target: 'Разве', after: ' ты не знал?',
+      hint: 'Какой оттенок вносит это слово — сомнение, вопрос?' },
+    { icon: '🕯️', label: 'Частица', before: '', target: 'Пусть', after: ' всегда будет солнце.',
+      hint: 'Для чего служит эта частица — для образования формы глагола?' }
+  ];
+
+  let lastCardIdx = { main: -1, hidden: -1 };
+  function drawCard(el, deckKey) {
+    deckKey = deckKey || 'main';
+    const deck = deckKey === 'hidden' ? DECK2 : DECK;
+    let idx;
+    do { idx = Math.floor(Math.random() * deck.length); } while (deck.length > 1 && idx === lastCardIdx[deckKey]);
+    lastCardIdx[deckKey] = idx;
+    const c = deck[idx];
+
+    document.getElementById('dcIcon').textContent = c.icon;
+    document.getElementById('dcLabel').textContent = c.label;
+    document.getElementById('dcPromptWord').textContent = c.target;
+    document.getElementById('dcSentence').innerHTML = c.before + '<span class="dc-target">' + c.target + '</span>' + c.after;
+    document.getElementById('dcHint').textContent = c.hint;
+
+    document.getElementById('cardOverlay').classList.add('show');
+
+    if (el) {
+      const r = el.getBoundingClientRect();
+      spawnBurst(r.left + r.width / 2, r.top + r.height / 2, { n: 14, minDist: 25, maxDist: 55, dur: 650 });
+    }
+  }
+
+  function closeCardOverlay() {
+    document.getElementById('cardOverlay').classList.remove('show');
+  }
+
+  function closeOverlayIfBackdrop(e) {
+    if (e.target.id === 'cardOverlay') closeCardOverlay();
+  }
+
+  // twinkling star field
+  (function generateStars() {
+    const field = document.querySelector('.stars');
+    const count = 44;
+    for (let n = 0; n < count; n++) {
+      const s = document.createElement('span');
+      s.className = 'star';
+      const size = (Math.random() * 2 + 1).toFixed(1);
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.top = (Math.random() * 100).toFixed(1) + '%';
+      s.style.left = (Math.random() * 100).toFixed(1) + '%';
+      s.style.animationDuration = (2 + Math.random() * 3).toFixed(1) + 's';
+      s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+      field.appendChild(s);
+    }
+    // drifting gold sparkles — chaotic multi-directional float, layered above the starfield
+    const sparkleCount = 20;
+    for (let n = 0; n < sparkleCount; n++) {
+      const s = document.createElement('span');
+      s.className = 'sparkle';
+      const size = (Math.random() * 2.5 + 2).toFixed(1);
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = (Math.random() * 100).toFixed(1) + '%';
+      s.style.top = (30 + Math.random() * 70).toFixed(1) + '%';
+      s.style.animationDuration = (6 + Math.random() * 7).toFixed(1) + 's';
+      s.style.animationDelay = (Math.random() * 10).toFixed(1) + 's';
+      const rand = () => (Math.random() * 90 - 45).toFixed(0) + 'px';
+      s.style.setProperty('--dx1', rand());
+      s.style.setProperty('--dy1', (-(40 + Math.random() * 60)).toFixed(0) + 'px');
+      s.style.setProperty('--dx2', rand());
+      s.style.setProperty('--dy2', (-(20 + Math.random() * 80)).toFixed(0) + 'px');
+      s.style.setProperty('--dx3', rand());
+      s.style.setProperty('--dy3', (-(60 + Math.random() * 90)).toFixed(0) + 'px');
+      s.style.setProperty('--dx4', rand());
+      s.style.setProperty('--dy4', (-(100 + Math.random() * 100)).toFixed(0) + 'px');
+      field.appendChild(s);
+    }
+
+    // floating grammar glyphs — letters, parts of speech, and sentence-member words (underlined), commas
+    const GLYPHS = [
+      { text: 'а', cls: '' }, { text: 'о', cls: '' }, { text: 'и', cls: '' }, { text: 'не', cls: '' }, { text: 'же', cls: '' },
+      { text: 'но', cls: '' }, { text: 'да', cls: '' }, { text: 'ли', cls: '' }, { text: 'бы', cls: '' }, { text: 'то', cls: '' },
+      { text: 'кто?', cls: '' }, { text: 'что?', cls: '' }, { text: 'как?', cls: '' }, { text: 'какой?', cls: '' },
+      { text: 'чей?', cls: '' }, { text: 'сколько?', cls: '' }, { text: 'откуда?', cls: '' }, { text: 'зачем?', cls: '' },
+      { text: ',', cls: '' }, { text: ',', cls: '' }, { text: ',', cls: '' }, { text: ';', cls: '' }, { text: '—', cls: '' },
+      { text: 'существительное', cls: '' }, { text: 'прилагательное', cls: '' }, { text: 'глагол', cls: '' },
+      { text: 'местоимение', cls: '' }, { text: 'наречие', cls: '' }, { text: 'числительное', cls: '' },
+      { text: 'предлог', cls: '' }, { text: 'союз', cls: '' }, { text: 'частица', cls: '' }, { text: 'междометие', cls: '' },
+      { text: 'род', cls: '' }, { text: 'число', cls: '' }, { text: 'падеж', cls: '' }, { text: 'склонение', cls: '' },
+      { text: 'спряжение', cls: '' }, { text: 'время', cls: '' }, { text: 'наклонение', cls: '' }, { text: 'лицо', cls: '' },
+      { text: 'вид', cls: '' }, { text: 'разряд', cls: '' },
+      { text: 'подлежащее', cls: 'role-subject' }, { text: 'подлежащее', cls: 'role-subject' },
+      { text: 'звезда', cls: 'role-subject' }, { text: 'звезда', cls: 'role-subject' },
+      { text: 'сказуемое', cls: 'role-predicate' }, { text: 'сказуемое', cls: 'role-predicate' },
+      { text: 'летит', cls: 'role-predicate' }, { text: 'летит', cls: 'role-predicate' },
+      { text: 'определение', cls: 'role-attribute' }, { text: 'определение', cls: 'role-attribute' },
+      { text: 'яркая', cls: 'role-attribute' }, { text: 'яркая', cls: 'role-attribute' },
+      { text: 'дополнение', cls: 'role-object' }, { text: 'дополнение', cls: 'role-object' },
+      { text: 'письмо', cls: 'role-object' }, { text: 'письмо', cls: 'role-object' },
+      { text: 'обстоятельство', cls: 'role-adverbial' }, { text: 'обстоятельство', cls: 'role-adverbial' },
+      { text: 'быстро', cls: 'role-adverbial' }, { text: 'быстро', cls: 'role-adverbial' }
+    ];
+    const glyphCount = 36;
+    const gCols = 6, gRows = 6;
+    const cellIdx = [];
+    for (let i = 0; i < gCols * gRows; i++) cellIdx.push(i);
+    for (let i = cellIdx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cellIdx[i], cellIdx[j]] = [cellIdx[j], cellIdx[i]];
+    }
+    for (let n = 0; n < glyphCount; n++) {
+      const g = document.createElement('span');
+      const item = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      g.className = 'glyph role-mark ' + item.cls;
+      g.textContent = item.text;
+      const size = (13 + Math.random() * 10).toFixed(0);
+      g.style.fontSize = size + 'px';
+      const cell = cellIdx[n % cellIdx.length];
+      const cellW = 100 / gCols, cellH = 100 / gRows;
+      const cellX = (cell % gCols) * cellW, cellY = Math.floor(cell / gCols) * cellH;
+      g.style.left = (cellX + cellW * 0.15 + Math.random() * cellW * 0.7).toFixed(1) + '%';
+      g.style.top = (cellY + cellH * 0.15 + Math.random() * cellH * 0.7).toFixed(1) + '%';
+      g.style.setProperty('--gop', (0.05 + Math.random() * 0.05).toFixed(2));
+      g.style.animationDuration = (13 + Math.random() * 10).toFixed(1) + 's';
+      g.style.animationDelay = (Math.random() * 12).toFixed(1) + 's';
+      g.style.setProperty('--dxm', (Math.random() * 60 - 30).toFixed(0) + 'px');
+      g.style.setProperty('--dym', (Math.random() * 50 - 45).toFixed(0) + 'px');
+      g.style.setProperty('--rm', (Math.random() * 10 - 5).toFixed(1) + 'deg');
+      field.appendChild(g);
+    }
+  })();
+</script>
+</body>
+</html>
